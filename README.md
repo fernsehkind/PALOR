@@ -8,12 +8,6 @@ PALOR uses a web frontend to sync and readout your activity tracker.
 Please make sure that you read the license before you use this software.
 Any use of the software or following the installation instructions is entirely at your own risk.
 
-Software requirements
----------------------
-
-  * Python 2
-  * Apache2
-  * PHP (> 5.5)
 
 Installation
 ------------
