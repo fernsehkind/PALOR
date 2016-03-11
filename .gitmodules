@@ -1,0 +1,3 @@
+[submodule "python/loophole"]
+	path = python/loophole
+	url = https://github.com/rsc-dev/loophole.git

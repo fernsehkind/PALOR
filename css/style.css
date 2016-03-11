@@ -1,0 +1,52 @@
+body {
+  padding-top: 50px;
+}
+
+.device_box_border {
+    border: #000000 1px solid;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin: 20px;
+}
+
+.device_box_border ul {
+    text-align: left;
+}
+
+.table-striped {
+    margin: 0 auto;
+    width: 100%;
+}
+
+.table-striped td {
+    padding: 5px;
+
+}
+
+table .bold {
+    font-weight: bold;
+}
+
+.error {
+    color: #CC0000;
+}
+
+.row {
+    margin-top: 30px;
+}
+
+.datepicker-inline {
+    width: 100%;
+}
+
+.datepicker .table-condensed {
+    width: 100%;
+}
+
+.datepicker table tr td span {
+    width: 6%;
+    height: 30px;
+    line-height: 30px;
+}
