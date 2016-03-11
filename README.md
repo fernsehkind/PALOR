@@ -20,7 +20,8 @@ Installation
 
 Example installation on a Banana Pi
 
-  * Install Python 2, Apache2 and PHP
+  * Install Python 2, Apache2 and PHP:
+
     `sudo apt-get install python2.7 apache2 php5 python-setuptools`
   * You have to install packages needed by loophole:
     [protobuf](https://pypi.python.org/pypi/protobuf/3.0.0b2)
