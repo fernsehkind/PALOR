@@ -37,14 +37,27 @@ class StepsChartDrawer extends ChartDrawer {
 
 var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
     title:{ text: "$$$title$$$" },
+    colorSet: "$$$divName$$$Color",
+    legend: { 
+        verticalAlign: "top", 
+        horizontalAlign: "center",
+        fontSize: 12
+    },
+    axisX: {
+        title: "Date",
+        titleFontSize: 14,
+        labelFontSize: 12
+    },
     axisY: {
-        title: "$$$legendText0$$$"
+        title: "$$$legendText0$$$",
+        titleFontSize: 14,
+        labelFontSize: 12,
     },
     axisY2: {
-        title: "$$$legendText1$$$"
+        title: "$$$legendText1$$$",
+        titleFontSize: 14,
+        labelFontSize: 12,
     },
-    colorSet: "$$$divName$$$Color",
-    legend: { verticalAlign: "top", horizontalAlign: "right"},
     data: [ {
         type: "column",
         showInLegend: true,

@@ -38,7 +38,21 @@ class CaloriesChartDrawer extends ChartDrawer {
 var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
     title:{ text: "$$$title$$$" },
     colorSet: "$$$divName$$$Color",
-    legend: { verticalAlign: "top", horizontalAlign: "right"},
+    legend: { 
+        verticalAlign: "top",
+        horizontalAlign: "center",
+        fontSize: 12
+    },
+    axisX: {
+        title: "Date",
+        titleFontSize: 14,
+        labelFontSize: 12
+    },
+    axisY: {
+        title: "Calories",
+        titleFontSize: 14,
+        labelFontSize: 12,
+    },
     data: [ {
         type: "stackedColumn",
         showInLegend: true,

@@ -36,10 +36,22 @@ class ActivityClassTimesChartDrawer extends ChartDrawer {
     private $_templateColumn = 'CanvasJS.addColorSet("$$$divName$$$Color", ["$$$colors$$$"]);
 
 var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
-    title:{ text: "$$$title$$$" },
+    title:{ text: "$$$title$$$", fontSize: 24 },
     colorSet: "$$$divName$$$Color",
-    legend: { verticalAlign: "top", horizontalAlign: "right"},
+    legend: { 
+        verticalAlign: "top",
+        horizontalAlign: "center",
+        fontSize: 12
+    },
+    axisX:{
+        title: "Date",
+        titleFontSize: 14,
+        labelFontSize: 12
+      },
     axisY:{
+        title: "Duration in h",
+        titleFontSize: 14,
+        labelFontSize: 12,
         maximum: 24,
         interval: 4,
     },
