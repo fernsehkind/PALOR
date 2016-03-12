@@ -41,13 +41,10 @@ Example installation on a Banana Pi
     (e.g. `/etc/apache2/sites-available/000-default.conf`) and add the
     following lines:
 
-    `<Directory /var/www/html/palor/python>`
-    
-                `Options +ExecCGI`
-                
-                `AddHandler cgi-script .py`
-                
-    `</Directory>`
+                <Directory /var/www/html/palor/python>
+                    Options +ExecCGI
+                   AddHandler cgi-script .py
+                </Directory>
 
     This will allow to execute python scripts from the webserver instance.
     Be careful if your webserver is accessible to the public.
