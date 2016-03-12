@@ -9,8 +9,8 @@ Please make sure that you read the license before you use this software.
 Any use of the software or following the installation instructions is entirely at your own risk.
 
 
-Installation
-------------
+Installation (Linux)
+--------------------
 
 Example installation on a Banana Pi
 
@@ -38,13 +38,16 @@ Example installation on a Banana Pi
     `sudo chmod +x /var/www/html/palor/python/dump_devices.py`
 
   * Modify or create your virtual host configuration file
-    (e.g. `/etc/apache2/sites-available/000-default.conf`) and the
+    (e.g. `/etc/apache2/sites-available/000-default.conf`) and add the
     following lines:
 
-    `<Directory /var/www/html/palor/python>
-                Options +ExecCGI
-                AddHandler cgi-script .py
-    </Directory>`
+    `<Directory /var/www/html/palor/python>`
+    
+                `Options +ExecCGI`
+                
+                `AddHandler cgi-script .py`
+                
+    `</Directory>`
 
     This will allow to execute python scripts from the webserver instance.
     Be careful if your webserver is accessible to the public.
