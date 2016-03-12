@@ -28,12 +28,12 @@
 
 <?php
 
-    require_once('backend/ActivityClassTimesChartDrawer.php');
-    require_once('backend/CaloriesChartDrawer.php');
-    require_once('backend/PbFactory.php');
-    require_once('backend/PbHelper.php');
-    require_once('backend/Settings.php');
-    require_once('backend/StepsChartDrawer.php');
+    require_once('../../backend/ActivityClassTimesChartDrawer.php');
+    require_once('../../backend/CaloriesChartDrawer.php');
+    require_once('../../backend/PbFactory.php');
+    require_once('../../backend/PbHelper.php');
+    require_once('../../backend/Settings.php');
+    require_once('../../backend/StepsChartDrawer.php');
 
     if (isset($_GET['id'])) {
         $deviceId = $_GET['id'];
@@ -89,10 +89,10 @@
     <title>PALOR - Monthly activity</title>
 
     <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/bootstrap-datepicker3.min.css" rel="stylesheet">
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../css/bootstrap-datepicker3.min.css" rel="stylesheet">
 
-    <link href="css/style.css" rel="stylesheet">
+    <link href="../../css/style.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -111,12 +111,12 @@
             </div>
             <div id="navbar" class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
-                    <li><a href="index.php">Home</a></li>
+                    <li><a href="../../index.php">Home</a></li>
                     <?php if ($device !== NULL): ?>
                     <li><a href="recent.php?id=<?php echo $deviceId; ?>">Device <?php echo $deviceId; ?></a></li>
                     <li class="active"><a href="monthly.php?id=<?php echo $deviceId; ?>">Monthly activity</a></li>
                     <?php endif; ?>
-                    <li><a href="about.php">About</a></li>
+                    <li><a href="../../about.php">About</a></li>
                 </ul>
             </div><!--/.nav-collapse -->
         </div>
@@ -163,7 +163,7 @@
 
     </div><!-- /.container -->
 
-    <script src="canvasjs/canvasjs.min.js"></script>
+    <script src="../../canvasjs/canvasjs.min.js"></script>
     <script type="text/javascript">
 
     window.onload = function () {
@@ -202,8 +202,8 @@
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/bootstrap-datepicker.min.js"></script>
+    <script src="../../js/bootstrap.min.js"></script>
+    <script src="../../js/bootstrap-datepicker.min.js"></script>
 
 
   </body>

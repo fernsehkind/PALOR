@@ -288,6 +288,19 @@ class PbHelper {
         return $hours;
     }
 
+    public static function toModelType($device) {
+        $array = array(
+            'Polar Loop' => 'loop'
+            );
+
+        if (array_key_exists($device['model_name'], $array)) {
+            return $array[$device['model_name']];
+        }
+        else {
+            return NULL;
+        }
+    }
+
     private static function createArrayFromPb($pbObj, $varNames) {
         $array = array();
         foreach ($varNames as $varName) {

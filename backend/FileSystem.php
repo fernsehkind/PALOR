@@ -35,6 +35,12 @@ class FileSystem {
     public static function fileExists($path) {
         return file_exists($path);
     }
+
+    public static function getBasePath() {
+        $path = $_SERVER['DOCUMENT_ROOT'];
+        $path .= '/' . Settings::PALOR_PATH;
+        return $path;
+    }
 }
 
 ?>

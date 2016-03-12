@@ -39,20 +39,22 @@ require_once('pb/user_id.proto.php');
 
 class PbFactory {
 
-    const PATH_DEVICE_ALL = '/DEVICE.BPB';
-    const PATH_DEVICE = '%s/%s/DEVICE.BPB';
-    const PATH_SYNC_INFO = '%s/%s/SYNCINFO.BPB';
-    const PATH_USER_DATABASE = '%s/%s/U/UDB.BPB';
-    const PATH_USER_ID = '%s/%s/U/%d/USERID.BPB';
-    const PATH_DAILY_SUMMARY = '%s/%s/U/%d/%s/DSUM/DSUM.BPB';
+    const PATH_DEVICE_ALL = '%s/DEVICE.BPB';
+    const PATH_DEVICE = '%s/%s/%s/DEVICE.BPB';
+    const PATH_SYNC_INFO = '%s/%s/%s/SYNCINFO.BPB';
+    const PATH_USER_DATABASE = '%s/%s/%s/U/UDB.BPB';
+    const PATH_USER_ID = '%s/%s/%s/U/%d/USERID.BPB';
+    const PATH_DAILY_SUMMARY = '%s/%s/%s/U/%d/%s/DSUM/DSUM.BPB';
 
     public static $_fileNameAssignments;
 
     public static function getAllDevices($dataPath) {
-        $dirs = FileSystem::getDeviceFolders($dataPath);
+        $dirs = FileSystem::getDeviceFolders(
+            FileSystem::getBasePath() . '/' . $dataPath);
         $devices = array();
         foreach ($dirs as $dir) {
-            $device = self::parse($dir . self::PATH_DEVICE_ALL);
+            $path = sprintf(self::PATH_DEVICE_ALL, $dir);
+            $device = self::parse($path);
             if ($device !== NULL) {
                 $devices[] = $device;
             }
@@ -61,32 +63,33 @@ class PbFactory {
     }
 
     public static function getDevice($dataPath, $id) {
-        $path = sprintf(self::PATH_DEVICE, $dataPath, $id);
+        $path = sprintf(self::PATH_DEVICE, 
+            FileSystem::getBasePath(), $dataPath, $id);
         return self::parse($path);
     }
 
     public static function getSyncInfo($dataPath, $id) {
-        $path = sprintf(self::PATH_SYNC_INFO, $dataPath, $id);
+        $path = sprintf(self::PATH_SYNC_INFO,
+            FileSystem::getBasePath(), $dataPath, $id);
         return self::parse($path);
     }
 
     public static function getUserDatabase($dataPath, $id) {
-        $path = sprintf(self::PATH_USER_DATABASE, $dataPath, $id);
+        $path = sprintf(self::PATH_USER_DATABASE, 
+            FileSystem::getBasePath(), $dataPath, $id);
         return self::parse($path);
     }
 
     public static function getDailySummaryOfDate($dataPath, $id, $userId,
         $date) {
-        $path = sprintf(self::PATH_DAILY_SUMMARY, $dataPath,
+        $path = sprintf(self::PATH_DAILY_SUMMARY,
+            FileSystem::getBasePath(), $dataPath,
             $id, $userId, $date->format('Ymd'));
         return self::parse($path);
     }
 
     public static function getDailySummaries($dataPath, $id, $userId,
         $startDate, $endDate) {
-
-        //$startDate->setTime(0, 0);
-        //$endDate->setTime(0, 0);
 
         $currentDate = $startDate;
         $summaries = array();

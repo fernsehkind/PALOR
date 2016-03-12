@@ -104,9 +104,18 @@
                     }
             ?>
         <?php for ($j = 0; $j < $col; $j++): ?>
+            <?php $modelType = \Palor\PbHelper::toModelType($devices[$i + $j]); ?>
+
                 <div class="device_box <?php echo $class; ?>">
                     <div class="device_box_border">
-                        <h3><a href="recent.php?id=<?php echo $devices[$i + $j]['deviceID'] ?>"><?php echo $devices[$i + $j]['deviceID'] ?></a></h3>
+                        <h3>
+                            <?php if ($modelType !== NULL): ?>
+                            <a href="device/<?php echo $modelType; ?>/recent.php?id=<?php echo $devices[$i + $j]['deviceID'] ?>"><?php echo $devices[$i + $j]['deviceID'] ?>
+                            </a>
+                            <?php else: ?>
+                            <?php echo $devices[$i + $j]['deviceID'] ?> - Not supported    
+                            <?php endif; ?>
+                        </h3>
                         <table class="table-striped">
                         <tr>
                             <td class="bold">Model name:</td>

@@ -27,6 +27,7 @@
 namespace Palor;
 
 class Settings {
+    const PALOR_PATH = 'palor';
     const DEVICE_DATA_PATH = 'device_data';
     const DATE_AND_TIME_FORMAT = 'j.n.Y, G:i';
     const DATE_FORMAT = 'j.n.Y';
