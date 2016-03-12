@@ -33,6 +33,7 @@ class Settings {
     const TIME_FORMAT = 'G:i';
     public static $CHART_COLOR_ONE_DIM = array('#6699FF', "#CC2222");
     public static $CHART_COLOR_TWO_DIM = array('#555555', '#22CC22');
+    public static $CHART_COLOR_EIGHT_DIM = array('#222222', '#226622', '#CC2222', '#22CC22', '#FFA500', '#0022DD', '#800517', '#7D0552');
 }
 
 ?>

@@ -88,13 +88,13 @@ class ChartDrawer {
 
         if (!$multidimensional) {
             for ($i = 0; $i < count($x); $i++) {
-                $dataPointsStr .= sprintf('{ label: "%s", y: %d },',
+                $dataPointsStr .= sprintf('{ label: "%s", y: %f },',
                     $x[$i], $y[$i]);
             }
         }
         else {
             for ($i = 0; $i < count($x); $i++) {
-                $dataPointsStr .= sprintf('{ label: "%s", y: %d },',
+                $dataPointsStr .= sprintf('{ label: "%s", y: %f },',
                     $x[$i], $y[$i][$yDim]);
             }
         }

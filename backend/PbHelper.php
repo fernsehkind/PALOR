@@ -268,6 +268,25 @@ class PbHelper {
         }
     }
 
+    public static function toMinutesPbDuration($item) {
+        $minutes = 0.;
+
+        $minutes += $item['hours'] * 60;
+        $minutes += $item['minutes'];
+        $minutes += $item['seconds'] / 60.;
+
+        return $minutes;
+    }
+
+    public static function toHoursPbDuration($item) {
+        $hours = 0.;
+
+        $hours += $item['hours'];
+        $hours += $item['minutes'] / 60.;
+        $hours += $item['seconds'] / 3600.;
+
+        return $hours;
+    }
 
     private static function createArrayFromPb($pbObj, $varNames) {
         $array = array();

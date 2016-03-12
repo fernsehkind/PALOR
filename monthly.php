@@ -28,6 +28,7 @@
 
 <?php
 
+    require_once('backend/ActivityClassTimesChartDrawer.php');
     require_once('backend/CaloriesChartDrawer.php');
     require_once('backend/PbFactory.php');
     require_once('backend/PbHelper.php');
@@ -143,6 +144,16 @@
                     No data found.
                 <?php endif; ?>
             </div>
+            <div class="row">
+                <?php if ($dailySummaries !== NULL): ?>
+                <div class="col-md-12">
+                    <div id="activityClassContainer" style="height:600px"></div>
+                </div>
+                <?php else: ?>
+                    No data found.
+                <?php endif; ?>
+            </div>
+
         </div>
 
 <?php else: ?>
@@ -167,6 +178,12 @@
     $drawer = new \Palor\CaloriesChartDrawer();
     echo $drawer->generateColumnChartByDay($dailySummaries,
         'caloriesContainer', sprintf('Calories (%s - %d)', $monthName, $year));
+?>
+
+<?php
+    $drawer = new \Palor\ActivityClassTimesChartDrawer();
+    echo $drawer->generateColumnChartByDay($dailySummaries,
+        'activityClassContainer', sprintf('Activity class times (%s - %d)', $monthName, $year));
 ?>
 
     $('.datepicker').datepicker({
