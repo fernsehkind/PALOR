@@ -37,13 +37,26 @@ class StepsChartDrawer extends ChartDrawer {
 
 var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
     title:{ text: "$$$title$$$" },
+    axisY: {
+        title: "$$$legendText0$$$"
+    },
+    axisY2: {
+        title: "$$$legendText1$$$"
+    },
     colorSet: "$$$divName$$$Color",
     legend: { verticalAlign: "top", horizontalAlign: "right"},
     data: [ {
         type: "column",
         showInLegend: true,
-        legendText: "$$$legendText$$$",
-        dataPoints: [$$$dataPoints$$$]
+        legendText: "$$$legendText0$$$",
+        dataPoints: [$$$dataPoints0$$$]
+    }, {
+        type: "line",
+        showInLegend: true,
+        axisYType: "secondary",
+        legendText: "$$$legendText1$$$",
+        yValueFormatString: "# \'%\'",
+        dataPoints: [$$$dataPoints1$$$]
     }]
 });
 var$$$divName$$$.render();
@@ -55,12 +68,12 @@ var$$$divName$$$.render();
     }
 
     public function generateColumnChartByDay($dailySummaries,
-        $divName, $title = 'Steps', $legendText = 'Steps') {
+        $divName, $title = 'Steps', $legendText = array('Steps', 'Activity goal')) {
 
         $dataSet = $this->_generateStepsByDate($dailySummaries);
 
         return parent::generateChart($dataSet['x'],
-            $dataSet['y'], 1, $divName,
+            $dataSet['y'], 2, $divName,
             $title, $legendText);
     }
 
@@ -71,7 +84,15 @@ var$$$divName$$$.render();
         for ($i = 0; $i < count($dailySummaries); $i++) {
             $x[$i] = PbHelper::toStringPbDate(
                 $dailySummaries[$i]['date']);
-            $y[$i] = $dailySummaries[$i]['steps'];
+            $y[$i][0] = $dailySummaries[$i]['steps'];
+            $goal = $dailySummaries[$i]['activity_goal_summary']['activity_goal'];
+            $achieved = $dailySummaries[$i]['activity_goal_summary']['achieved_activity'];
+            if (!is_null($goal) && ($goal > 0)) {
+                $y[$i][1] = round(($achieved / $goal) * 100);
+            }
+            else {
+                $y[$i][1] = 0;
+            }
         }
 
         return array('x' => $x, 'y' => $y);
