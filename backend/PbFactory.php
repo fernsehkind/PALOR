@@ -31,6 +31,7 @@ require_once('PbHelper.php');
 
 require_once('pb/protocolbuffers.inc.php');
 require_once('pb/types.proto.php');
+require_once('pb/act_samples.proto.php');
 require_once('pb/dailysummary.proto.php');
 require_once('pb/device.proto.php');
 require_once('pb/syncinfo.proto.php');
@@ -45,6 +46,7 @@ class PbFactory {
     const PATH_USER_DATABASE = '%s/%s/%s/U/UDB.BPB';
     const PATH_USER_ID = '%s/%s/%s/U/%d/USERID.BPB';
     const PATH_DAILY_SUMMARY = '%s/%s/%s/U/%d/%s/DSUM/DSUM.BPB';
+    const PATH_ACT_SAMPLES = '%s/%s/%s/U/%d/%s/ACT/ASAMPL0.BPB';
 
     public static $_fileNameAssignments;
 
@@ -129,6 +131,16 @@ class PbFactory {
             $startDate, $endDate);
     }
 
+    public static function getActSamples($dataPath, $id, $userId,
+        $year, $month, $day) {
+        $date = new \DateTime();
+        $date->setDate($year, $month, $day);
+        $path = sprintf(self::PATH_ACT_SAMPLES,
+            FileSystem::getBasePath(), $dataPath,
+            $id, $userId, $date->format('Ymd'));
+        return self::parse($path);
+    }
+
     public static function parse($file) {
         try {
             $basename = strtolower(basename($file));
@@ -181,6 +193,10 @@ PbFactory::$_fileNameAssignments = array(
     array(
         'fileName' => 'dsum.bpb',
         'class' => '\data\PbDailySummary'
+    ),
+    array(
+        'fileName' => 'asampl0.bpb',
+        'class' => '\data\PbActivitySamples'
     ),
 );
 

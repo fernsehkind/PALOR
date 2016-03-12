@@ -98,6 +98,7 @@
                     <?php if ($device !== NULL): ?>
                     <li class="active"><a href="recent.php?id=<?php echo $deviceId; ?>">Device <?php echo $deviceId; ?></a></li>
                     <li><a href="monthly.php?id=<?php echo $deviceId; ?>">Monthly activity</a></li>
+                    <li><a href="daily.php?id=<?php echo $deviceId; ?>">Daily activity</a></li>
                     <?php endif; ?>
                     <li><a href="../../about.php">About</a></li>
                 </ul>

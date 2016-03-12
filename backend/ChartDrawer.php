@@ -44,7 +44,7 @@ class ChartDrawer {
     }
 
     protected function generateChart($x, $y, $yDimCount,
-        $divName, $title, $legendText) {
+        $divName, $title, $legendText, $xIsText = true) {
 
         $javascriptCode = $this->_template;
 
@@ -74,7 +74,7 @@ class ChartDrawer {
             $yDimCount);
         for ($i = 0; $i < $yDimCount; $i++) {
             $javascriptCode = str_replace($dataPointSearch[$i],
-                $this->_generateDataPoints($x, $y, $i, $yDimCount > 1),
+                $this->_generateDataPoints($x, $y, $i, $yDimCount > 1, $xIsText),
                 $javascriptCode);
         }
 
@@ -82,20 +82,32 @@ class ChartDrawer {
     }
 
     private function _generateDataPoints($x, $y, $yDim,
-        $multidimensional) {
+        $multidimensional, $xIsText) {
 
         $dataPointsStr = '';
 
         if (!$multidimensional) {
             for ($i = 0; $i < count($x); $i++) {
-                $dataPointsStr .= sprintf('{ label: "%s", y: %f },',
-                    $x[$i], $y[$i]);
+                if ($xIsText) {
+                    $dataPointsStr .= sprintf('{ label: "%s", y: %f },',
+                        $x[$i], $y[$i]);
+                }
+                else {
+                    $dataPointsStr .= sprintf('{ x: %s, y: %f },',
+                        $x[$i], $y[$i]);
+                }
             }
         }
         else {
             for ($i = 0; $i < count($x); $i++) {
-                $dataPointsStr .= sprintf('{ label: "%s", y: %f },',
-                    $x[$i], $y[$i][$yDim]);
+                if ($xIsText) {
+                    $dataPointsStr .= sprintf('{ label: "%s", y: %f },',
+                        $x[$i], $y[$i][$yDim]);
+                }
+                else {
+                    $dataPointsStr .= sprintf('{ x: %s, y: %f },',
+                        $x[$i], $y[$i][$yDim]);
+                }
             }
         }
 

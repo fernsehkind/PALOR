@@ -28,6 +28,7 @@
 
 <?php
 
+    require_once('../../backend/ActivityClassDayChartDrawer.php');
     require_once('../../backend/ActivityClassTimesChartDrawer.php');
     require_once('../../backend/CaloriesChartDrawer.php');
     require_once('../../backend/PbFactory.php');
@@ -40,6 +41,13 @@
     }
     else {
         $deviceId = NULL;
+    }
+
+    $day = intval(date('d'));
+    if (isset($_GET['day'])) {
+        if (is_numeric($_GET['day']) && ($_GET['day'] > 0) && ($_GET['day'] < 32)) {
+            $day = $_GET['day'];
+        }
     }
 
     $month = intval(date('n'));
@@ -57,9 +65,15 @@
         }
     }
 
+    if (!checkdate($month, $day, $year)) {
+        $day = intval(date('d'));
+        $month = intval(date('n'));
+        $year = intval(date('Y'));
+    }
+
     $device = NULL;
     $syncInfo = NULL;
-    $dailySummaries = NULL;
+    $actSamples = NULL;
     if ($deviceId !== NULL) {
         $syncInfo = \Palor\PbHelper::getPbSyncInfo(
             \Palor\PbFactory::getSyncInfo(
@@ -72,10 +86,13 @@
             \Palor\PbFactory::getUserDatabase(
                 \Palor\Settings::DEVICE_DATA_PATH, $deviceId));
 
-        $dailySummaries = \Palor\PbHelper::getPbDailySummaries(
-            \Palor\PbFactory::getDailySummariesMonth(
-                \Palor\Settings::DEVICE_DATA_PATH, $deviceId,
-                $userId, $year, $month));
+        $pbActSamples = \Palor\PbFactory::getActSamples(
+                \Palor\Settings::DEVICE_DATA_PATH,
+                $deviceId, $userId, $year, $month, $day);
+        if ($pbActSamples !== NULL) {
+            $actSamples = \Palor\PbHelper::getPbActivitySamples(
+                $pbActSamples);
+        }
     }
 ?>
 
@@ -86,7 +103,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>PALOR - Monthly activity</title>
+    <title>PALOR - Daily activity</title>
 
     <!-- Bootstrap -->
     <link href="../../css/bootstrap.min.css" rel="stylesheet">
@@ -114,8 +131,8 @@
                     <li><a href="../../index.php">Home</a></li>
                     <?php if ($device !== NULL): ?>
                     <li><a href="recent.php?id=<?php echo $deviceId; ?>">Device <?php echo $deviceId; ?></a></li>
-                    <li class="active"><a href="monthly.php?id=<?php echo $deviceId; ?>">Monthly activity</a></li>
-                    <li><a href="daily.php?id=<?php echo $deviceId; ?>">Daily activity</a></li>
+                    <li><a href="monthly.php?id=<?php echo $deviceId; ?>">Monthly activity</a></li>
+                    <li class="active"><a href="daily.php?id=<?php echo $deviceId; ?>">Daily activity</a></li>
                     <?php endif; ?>
                     <li><a href="../../about.php">About</a></li>
                 </ul>
@@ -126,41 +143,26 @@
     <div class="container">
 
         <div class="starter-template">
-<?php if ($device !== NULL): ?>
-            <h1>Monthly activity for device <?php echo $deviceId ?></h1>
+            <h1>Daily activity for device <?php echo $deviceId ?></h1>
 
             <div class="row">
-                <p>Please select a month and year:</p>
                 <div class="datepicker"></div>
             </div>
+<?php if ($actSamples !== NULL): ?>
             <div class="row">
-                <?php if ($dailySummaries !== NULL): ?>
-                <div class="col-md-6">
-                    <div id="stepsContainer" style="height:300px"></div>
-                </div>
-                <div class="col-md-6">
-                    <div id="caloriesContainer" style="height:300px"></div>
-                </div>
-                <?php else: ?>
-                    No data found.
-                <?php endif; ?>
-            </div>
-            <div class="row">
-                <?php if ($dailySummaries !== NULL): ?>
                 <div class="col-md-12">
-                    <div id="activityClassContainer" style="height:600px"></div>
+                    <div id="activityClassContainer" style="height:300px"></div>
                 </div>
-                <?php else: ?>
-                    No data found.
-                <?php endif; ?>
             </div>
-
+<?php else: ?>
+            <div class="row">
+                <div class="col-md-12">
+                    No data found for the selected day.
+                </div>
+            </div>
+<?php endif; ?>
         </div>
 
-<?php else: ?>
-            <h1>Monthly activity</h1>
-            Given device id does not exist. Please select a device <a href="index.php">here</a>.
-<?php endif; ?>
 
     </div><!-- /.container -->
 
@@ -170,43 +172,33 @@
     window.onload = function () {
 
 <?php
-    $drawer = new \Palor\StepsChartDrawer();
-    echo $drawer->generateColumnChartByDay($dailySummaries,
-        'stepsContainer', sprintf('Steps (%s - %d)', $monthName, $year));
-?>
-
-<?php
-    $drawer = new \Palor\CaloriesChartDrawer();
-    echo $drawer->generateColumnChartByDay($dailySummaries,
-        'caloriesContainer', sprintf('Calories (%s - %d)', $monthName, $year));
-?>
-
-<?php
-    $drawer = new \Palor\ActivityClassTimesChartDrawer();
-    echo $drawer->generateColumnChartByDay($dailySummaries,
-        'activityClassContainer', sprintf('Activity class times (%s - %d)', $monthName, $year));
+    if ($actSamples !== NULL) {
+        $drawer = new \Palor\ActivityClassDayChartDrawer();
+        $date = new \DateTime();
+        $date->setDate($year, $month, $day);
+        $date = $date->format(\Palor\Settings::DATE_FORMAT);
+        echo $drawer->generateStepAreaChartByDay($actSamples,
+            'activityClassContainer', sprintf('Course of day - %s', $date));
+    }
 ?>
 
     $('.datepicker').datepicker({
-        format: "mm/yyyy",
-        minViewMode: 1
+        format: "dd/mm/yyyy",
     }).on('changeDate', function(e) {
+        var currDay = new Date(e.date).getDate();
         var currMonth = new Date(e.date).getMonth() + 1;
         var currYear = String(e.date).split(" ")[3];
-        window.open("monthly.php?id=<?php echo $deviceId; ?>&month=" + currMonth + "&year=" + currYear, "_self");
+        window.open("daily.php?id=<?php echo $deviceId; ?>&day=" + currDay + "&month=" + currMonth + "&year=" + currYear, "_self");
     });
 
 };
     </script>
-
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="../../js/bootstrap.min.js"></script>
     <script src="../../js/bootstrap-datepicker.min.js"></script>
-
-
   </body>
 </html>
 

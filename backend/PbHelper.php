@@ -72,6 +72,64 @@ class PbHelper {
         return $array;
     }
 
+    public static function getArrayPbActivityInfo($pbObjArray) {
+        if ($pbObjArray === NULL) return NULL;
+
+        $array = array();
+
+        for($i = 0; $i < count($pbObjArray); $i++) {
+            if ($pbObjArray[$i] != NULL) {
+                $array[$i] = self::getPbActivityInfo($pbObjArray[$i]);
+            }
+            else {
+                $array[$i] = NULL;
+            }
+        }
+        return $array;
+    }
+
+    public static function getPbActivityInfo($pbObj) {
+        if ($pbObj === NULL) return NULL;
+
+        $array = self::createArrayFromPb($pbObj, array('value', 'factor'));
+
+        $array['time_stamp'] = self::getPbLocalDateTime(
+            self::getVar($pbObj, self::varNameToCamelCase('time_stamp')));
+
+        return $array;
+    }
+
+    public static function getPbActivitySamples($pbObj) {
+        $array = array();
+
+        $array['start_time'] = self::getPbLocalDateTime(
+            self::getVar($pbObj, self::varNameToCamelCase('start_time')));
+        $array['met_recording_interval'] = self::getPbDuration(
+            self::getVar($pbObj, self::varNameToCamelCase('met_recording_interval')));
+        $array['steps_recording_interval'] = self::getPbDuration(
+            self::getVar($pbObj, self::varNameToCamelCase('steps_recording_interval')));
+        $array['met_samples'] = self::getArray($pbObj,
+            self::varNameToCamelCase('met_samples'));
+        $array['steps_samples'] = self::getArray($pbObj,
+            self::varNameToCamelCase('steps_samples'));
+        $array['sport_info'] = self::getArrayPbSportInfo(
+            self::getArray($pbObj,
+                self::varNameToCamelCase('sport_info')));
+        $array['activity_info'] = self::getArrayPbActivityInfo(
+            self::getArray($pbObj,
+                self::varNameToCamelCase('activity_info')));
+        $array['inactivity_trigger'] = self::getArrayPbInActivityTriggerInfo(
+                self::getArray($pbObj,
+                    self::varNameToCamelCase(
+                        'inactivity_trigger')));
+        $array['inactivity_non_wear_trigger'] = self::getArrayPbInActivityNonWearTriggerInfo(
+                self::getArray($pbObj,
+                    self::varNameToCamelCase(
+                        'inactivity_non_wear_trigger')));
+
+        return $array;
+    }
+
     public static function getPbDailySummaries($pbObjArray) {
         $array = array();
 
@@ -145,6 +203,106 @@ class PbHelper {
             ));
     }
 
+
+
+    public static function getArrayPbInActivityNonWearTriggerInfo(
+        $pbObjArray) {
+        if ($pbObjArray === NULL) return NULL;
+
+        $array = array();
+
+        for($i = 0; $i < count($pbObjArray); $i++) {
+            if ($pbObjArray[$i] != NULL) {
+                $array[$i] = self::getPbInActivityNonWearTriggerInfo($pbObjArray[$i]);
+            }
+            else {
+                $array[$i] = NULL;
+            }
+        }
+        return $array;
+    }
+
+    public static function getPbInActivityNonWearTriggerInfo(
+        $pbObj) {
+        if ($pbObj === NULL) return NULL;
+
+        $array = array();
+
+        $array['start_time_stamp'] = self::getPbLocalDateTime(
+            self::getVar($pbObj, self::varNameToCamelCase('start_time_stamp')));
+        $array['end_time_stamp'] = self::getPbLocalDateTime(
+            self::getVar($pbObj, self::varNameToCamelCase('end_time_stamp')));
+
+        return $array;
+    }
+
+    public static function getArrayPbInActivityTriggerInfo($pbObjArray) {
+        if ($pbObjArray === NULL) return NULL;
+
+        $array = array();
+
+        for($i = 0; $i < count($pbObjArray); $i++) {
+            if ($pbObjArray[$i] != NULL) {
+                $array[$i] = self::getPbInActivityTriggerInfo($pbObjArray[$i]);
+            }
+            else {
+                $array[$i] = NULL;
+            }
+        }
+        return $array;
+    }
+
+    public static function getPbInActivityTriggerInfo($pbObj) {
+        if ($pbObj === NULL) return NULL;
+
+        $array = array();
+
+        $array['time_stamp'] = self::getPbLocalDateTime(
+            self::getVar($pbObj, self::varNameToCamelCase('time_stamp')));
+
+        return $array;
+    }
+
+    public static function getPbLocalDateTime($pbObj) {
+        if ($pbObj === NULL) return NULL;
+
+        $array = self::createArrayFromPb($pbObj, array('OBSOLETE_trusted', 'timeZoneOffset'));
+
+        $array['date'] = self::getPbDate(self::getVar($pbObj,
+            self::varNameToCamelCase('date')));
+        $array['time'] = self::getPbTime(self::getVar($pbObj,
+            self::varNameToCamelCase('time')));
+
+        return $array;
+    }
+
+    public static function getArrayPbSportInfo($pbObjArray) {
+        if ($pbObjArray === NULL) return NULL;
+
+        $array = array();
+
+        for($i = 0; $i < count($pbObjArray); $i++) {
+            if ($pbObjArray[$i] != NULL) {
+                $array[$i] = self::getPbSportInfo($pbObjArray[$i]);
+            }
+            else {
+                $array[$i] = NULL;
+            }
+        }
+        return $array;
+    }
+
+    public static function getPbSportInfo($pbObj) {
+        if ($pbObj === NULL) return NULL;
+
+        $array = self::createArrayFromPb($pbObj, array('factor', 'sport_profile_id'));
+
+        $array['time_stamp'] = self::getPbLocalDateTime(
+            self::getVar($pbObj, self::varNameToCamelCase('time_stamp')));
+
+        return $array;
+    }
+
     public static function getPbSyncInfo($pbObj) {
         $array = self::createArrayFromPb($pbObj, array('full_sync_required'));
         $array['last_modified'] = self::getPbSystemDateTime(
@@ -204,6 +362,7 @@ class PbHelper {
             return date(Settings::DATE_FORMAT, $timestamp);
         }
     }
+
     public static function toStringPbSystemDateTime($item) {
         $timestamp = self::toTimestampPbSystemDateTime($item);
         if ($timestamp === NULL) {
