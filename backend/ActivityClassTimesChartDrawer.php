@@ -84,7 +84,13 @@ var$$$divName$$$.render();
         legendText: "$$$legendText$$$index$$$$$$",
         yValueFormatString: "0.0 h",
         dataPoints: [$$$dataPoints$$$index$$$$$$],
-        name: "$$$legendText$$$index$$$$$$"
+        name: "$$$legendText$$$index$$$$$$",
+        click: function(e){
+            var link = "$$$link$$$&day=" + e.dataPoint.x.getDate();
+            link += "&month=" + (e.dataPoint.x.getMonth() + 1);
+            link += "&year=" + e.dataPoint.x.getFullYear();
+            window.open(link, "_self");
+        },
     },';
 
     public function __construct() {
@@ -93,15 +99,17 @@ var$$$divName$$$.render();
     }
 
     public function generateColumnChartByDay($dailySummaries,
-        $divName, $title = 'Activity class times', $legendText = array('Non wear', 'Sleep', 'Sedentary', 'Light activity', 'Continuous moderate', 'Intermittent moderate', 'Continuous vigorous', 'Intermittent vigorous')) {
+        $divName, $link, $title = 'Activity class times', $legendText = array('Non wear', 'Sleep', 'Sedentary', 'Light activity', 'Continuous moderate', 'Intermittent moderate', 'Continuous vigorous', 'Intermittent vigorous')) {
 
         $dataSet = $this->_generateTimesByDate($dailySummaries);
 
         parent::setTemplate(str_replace('$$$dataSeries$$$',
-            $this->_prepareDataSeriesTemplate($dataSet), $this->_templateColumn));
+            $this->_prepareDataSeriesTemplate($dataSet),
+            $this->_templateColumn));
 
         return parent::generateChart($dataSet['x'],
-            $dataSet['y'], $divName, $title, $legendText);
+            $dataSet['y'], $divName, $title, $legendText,
+            $link);
     }
 
     private function _prepareDataSeriesTemplate($dataSet) {

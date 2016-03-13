@@ -44,7 +44,7 @@ class ChartDrawer {
     }
 
     protected function generateChart($x, $y,
-        $divName, $title, $legendText) {
+        $divName, $title, $legendText, $link) {
 
         $javascriptCode = $this->_template;
 
@@ -65,6 +65,9 @@ class ChartDrawer {
 
         $javascriptCode = str_replace('$$$hourFormat$$$',
             Settings::HOUR_FORMAT_JS, $javascriptCode);
+
+        $javascriptCode = str_replace('$$$link$$$',
+            $link, $javascriptCode);
 
         foreach($x as $xIdx=>$value) {
             $legendTextSearch = self::_createSearchWord('legendText', $xIdx);

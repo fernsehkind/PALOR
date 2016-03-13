@@ -262,13 +262,17 @@
 <?php
     $drawer = new \Palor\StepsChartDrawer();
     echo $drawer->generateColumnChartByDay($dailySummaries,
-        'stepsContainer', 'Steps (last 31 days)');
+        'stepsContainer',
+        sprintf('daily.php?id=%s', $deviceId),
+        'Steps (last 31 days)');
 ?>
 
 <?php
     $drawer = new \Palor\CaloriesChartDrawer();
     echo $drawer->generateColumnChartByDay($dailySummaries,
-        'caloriesContainer', 'Calories (last 31 days)');
+        'caloriesContainer',
+        sprintf('daily.php?id=%s', $deviceId),
+        'Calories (last 31 days)');
 ?>
     };
     </script>

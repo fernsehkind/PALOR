@@ -178,7 +178,9 @@
         $date->setDate($year, $month, $day);
         $date = $date->format(\Palor\Settings::DATE_FORMAT);
         echo $drawer->generateStepAreaChartByDay($actSamples,
-            'activityClassContainer', sprintf('Course of day - %s', $date));
+            'activityClassContainer',
+            sprintf('daily.php?id=%s', $deviceId),
+            sprintf('Course of day - %s', $date));
     }
 ?>
 

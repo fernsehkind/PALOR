@@ -94,7 +94,13 @@ var$$$divName$$$.render();
         xValueType: "dateTime",
         legendText: "$$$legendText$$$index$$$$$$",
         dataPoints: [$$$dataPoints$$$index$$$$$$],
-        name: "$$$legendText$$$index$$$$$$"
+        name: "$$$legendText$$$index$$$$$$",
+        click: function(e){
+            var link = "$$$link$$$&day=" + e.dataPoint.x.getDate();
+            link += "&month=" + (e.dataPoint.x.getMonth() + 1);
+            link += "&year=" + e.dataPoint.x.getFullYear();
+            window.open(link, "_self");
+        },
     },';
 
     public function __construct() {
@@ -103,7 +109,7 @@ var$$$divName$$$.render();
     }
 
     public function generateStepAreaChartByDay($actSample,
-        $divName, $title = 'Activity class times', $legendText = array('Non wear', 'Sleep', 'Sedentary', 'Light activity', 'Continuous moderate', 'Intermittent moderate', 'Continuous vigorous', 'Intermittent vigorous')) {
+        $divName, $link, $title = 'Activity class times', $legendText = array('Non wear', 'Sleep', 'Sedentary', 'Light activity', 'Continuous moderate', 'Intermittent moderate', 'Continuous vigorous', 'Intermittent vigorous')) {
 
         $dataSet = $this->_generateDayCourse($actSample);
         ksort($dataSet['x']);
@@ -114,7 +120,7 @@ var$$$divName$$$.render();
 
         return parent::generateChart($dataSet['x'],
             $dataSet['y'], $divName,
-            $title, $legendText);
+            $title, $legendText, $link);
     }
 
     private function _prepareDataSeriesTemplate($dataSet) {

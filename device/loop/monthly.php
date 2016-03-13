@@ -185,15 +185,21 @@
     if ($dailySummaries !== NULL) {
         $drawer = new \Palor\StepsChartDrawer();
         echo $drawer->generateColumnChartByDay($dailySummaries,
-            'stepsContainer', sprintf('Steps (%s - %d)', $monthName, $year));
+            'stepsContainer',
+            sprintf('daily.php?id=%s', $deviceId),
+            sprintf('Steps (%s - %d)', $monthName, $year));
 
         $drawer = new \Palor\CaloriesChartDrawer();
         echo $drawer->generateColumnChartByDay($dailySummaries,
-            'caloriesContainer', sprintf('Calories (%s - %d)', $monthName, $year));
+            'caloriesContainer',
+            sprintf('daily.php?id=%s', $deviceId),
+            sprintf('Calories (%s - %d)', $monthName, $year));
 
         $drawer = new \Palor\ActivityClassTimesChartDrawer();
         echo $drawer->generateColumnChartByDay($dailySummaries,
-            'activityClassContainer', sprintf('Activity class times (%s - %d)', $monthName, $year));
+            'activityClassContainer',
+            sprintf('daily.php?id=%s', $deviceId),
+            sprintf('Activity class times (%s - %d)', $monthName, $year));
     }
 ?>
 

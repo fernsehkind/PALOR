@@ -84,7 +84,13 @@ var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
         showInLegend: true,
         legendText: "$$$legendText0$$$",
         dataPoints: [$$$dataPoints0$$$],
-        name: "$$$legendText0$$$"
+        name: "$$$legendText0$$$",
+        click: function(e){
+            var link = "$$$link$$$&day=" + e.dataPoint.x.getDate();
+            link += "&month=" + (e.dataPoint.x.getMonth() + 1);
+            link += "&year=" + e.dataPoint.x.getFullYear();
+            window.open(link, "_self");
+        },
     }, {
         type: "line",
         showInLegend: true,
@@ -92,7 +98,13 @@ var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
         legendText: "$$$legendText1$$$",
         yValueFormatString: "# \'%\'",
         dataPoints: [$$$dataPoints1$$$],
-        name: "$$$legendText1$$$"
+        name: "$$$legendText1$$$",
+        click: function(e){
+            var link = "$$$link$$$&day=" + e.dataPoint.x.getDate();
+            link += "&month=" + (e.dataPoint.x.getMonth() + 1);
+            link += "&year=" + e.dataPoint.x.getFullYear();
+            window.open(link, "_self");
+        },
     }]
 });
 var$$$divName$$$.render();
@@ -104,13 +116,13 @@ var$$$divName$$$.render();
     }
 
     public function generateColumnChartByDay($dailySummaries,
-        $divName, $title = 'Steps', $legendText = array('Steps', 'Activity goal')) {
+        $divName, $link, $title = 'Steps', $legendText = array('Steps', 'Activity goal')) {
 
         $dataSet = $this->_generateStepsByDate($dailySummaries);
 
         return parent::generateChart($dataSet['x'],
             $dataSet['y'], $divName,
-            $title, $legendText);
+            $title, $legendText, $link);
     }
 
     private function _generateStepsByDate($dailySummaries) {
