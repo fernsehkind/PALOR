@@ -35,7 +35,7 @@
     </nav>
 
     <div class="container">
-        <h1>About PALOR v0.2</h1>
+        <h1>About PALOR v0.3</h1>
         <div class="row">
             <div class="col-md-12">
                 This software can be used to analyze activity data collected by an activity tracker.
