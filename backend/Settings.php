@@ -31,7 +31,10 @@ class Settings {
     const DEVICE_DATA_PATH = 'device_data';
     const DATE_AND_TIME_FORMAT = 'j.n.Y, G:i';
     const DATE_FORMAT = 'j.n.Y';
+    const DATE_FORMAT_JS = 'D.M.YYYY';
     const TIME_FORMAT = 'G:i';
+    const TIME_FORMAT_JS = 'H:mm';
+    const HOUR_FORMAT_JS = '0.0 h';
     public static $CHART_COLOR_ONE_DIM = array('#6699FF', "#CC2222");
     public static $CHART_COLOR_TWO_DIM = array('#555555', '#22CC22');
     public static $CHART_COLOR_EIGHT_DIM = array('#555555', '#41A317', '#CC2222', '#7A5DC7', '#4CC417', '#0022DD', '#800517', '#7D0552');

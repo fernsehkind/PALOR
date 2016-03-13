@@ -38,7 +38,7 @@ class ActivityClassTimesChartDrawer extends ChartDrawer {
 var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
     title:{ text: "$$$title$$$", fontSize: 24 },
     colorSet: "$$$divName$$$Color",
-    legend: { 
+    legend: {
         verticalAlign: "top",
         horizontalAlign: "center",
         fontSize: 12
@@ -46,67 +46,46 @@ var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
     axisX:{
         title: "Date",
         titleFontSize: 14,
-        labelFontSize: 12
-      },
+        labelFontSize: 12,
+        valueFormatString: "$$$dateFormat$$$",
+        labelFormatter: function (e) {
+            return CanvasJS.formatDate( e.value, "$$$dateFormat$$$");
+        },
+    },
     axisY:{
         title: "Duration in h",
         titleFontSize: 14,
         labelFontSize: 12,
         maximum: 24,
-        interval: 4,
+        interval: 1,
     },
-    data: [ {
-        type: "stackedColumn",
-        showInLegend: true,
-        legendText: "$$$legendText0$$$",
-        yValueFormatString: "0.0 h",
-        dataPoints: [$$$dataPoints0$$$]
-    }, {
-        type: "stackedColumn",
-        showInLegend: true,
-        legendText: "$$$legendText1$$$",
-        yValueFormatString: "0.0 h",
-        dataPoints: [$$$dataPoints1$$$]
-    }, {
-        type: "stackedColumn",
-        showInLegend: true,
-        legendText: "$$$legendText2$$$",
-        yValueFormatString: "0.0 h",
-        dataPoints: [$$$dataPoints2$$$]
-    }, {
-        type: "stackedColumn",
-        showInLegend: true,
-        legendText: "$$$legendText3$$$",
-        yValueFormatString: "0.0 h",
-        dataPoints: [$$$dataPoints3$$$]
-    }, {
-        type: "stackedColumn",
-        showInLegend: true,
-        legendText: "$$$legendText4$$$",
-        yValueFormatString: "0.0 h",
-        dataPoints: [$$$dataPoints4$$$]
-    }, {
-        type: "stackedColumn",
-        showInLegend: true,
-        legendText: "$$$legendText5$$$",
-        yValueFormatString: "0.0 h",
-        dataPoints: [$$$dataPoints5$$$]
-    }, {
-        type: "stackedColumn",
-        showInLegend: true,
-        legendText: "$$$legendText6$$$",
-        yValueFormatString: "0.0 h",
-        dataPoints: [$$$dataPoints6$$$]
-    }, {
-        type: "stackedColumn",
-        showInLegend: true,
-        legendText: "$$$legendText7$$$",
-        yValueFormatString: "0.0 h",
-        dataPoints: [$$$dataPoints7$$$]
-    }]
+    toolTip:{
+        contentFormatter: function ( e ) {
+            var content = " ";
+            for (var i = 0; i < e.entries.length; i++) {
+                content += "Date: ";
+                content += CanvasJS.formatDate(e.entries[i].dataPoint.x, "$$$dateFormat$$$");
+                content += "<br/>";
+                content += e.entries[i].dataSeries.name + ": ";
+                content += e.entries[i].dataPoint.y;
+                content += " h";
+            }
+            return content;
+        }
+    },
+    data: [ $$$dataSeries$$$ ]
 });
 var$$$divName$$$.render();
 ';
+
+    private $_templateSeries = '{
+        type: "stackedColumn",
+        showInLegend: true,
+        legendText: "$$$legendText$$$index$$$$$$",
+        yValueFormatString: "0.0 h",
+        dataPoints: [$$$dataPoints$$$index$$$$$$],
+        name: "$$$legendText$$$index$$$$$$"
+    },';
 
     public function __construct() {
         parent::setColors(Settings::$CHART_COLOR_EIGHT_DIM);
@@ -118,9 +97,22 @@ var$$$divName$$$.render();
 
         $dataSet = $this->_generateTimesByDate($dailySummaries);
 
+        parent::setTemplate(str_replace('$$$dataSeries$$$',
+            $this->_prepareDataSeriesTemplate($dataSet), $this->_templateColumn));
+
         return parent::generateChart($dataSet['x'],
-            $dataSet['y'], 8, $divName,
-            $title, $legendText);
+            $dataSet['y'], $divName, $title, $legendText);
+    }
+
+    private function _prepareDataSeriesTemplate($dataSet) {
+        $dataSeries = '';
+
+        foreach ($dataSet['x'] as $xIdx=>$value) {
+            $dataSeries .= str_replace('$$$index$$$',
+                $xIdx, $this->_templateSeries);
+        }
+
+        return $dataSeries;
     }
 
     private function _generateTimesByDate($dailySummaries) {
@@ -128,8 +120,9 @@ var$$$divName$$$.render();
         $y = array();
 
         for ($i = 0; $i < count($dailySummaries); $i++) {
-            $x[$i] = PbHelper::toStringPbDate(
-                $dailySummaries[$i]['date']);
+            if ($dailySummaries[$i] === NULL) {
+                continue;
+            }
 
             $timeStr = array(
                 'time_non_wear',
@@ -143,7 +136,13 @@ var$$$divName$$$.render();
             );
 
             for ($j = 0; $j < count($timeStr); $j++) {
-                $y[$i][$j] = round(PbHelper::toHoursPbDuration(
+                $x[$j][$i] = sprintf
+                    ('new Date(%d,%d,%d)',
+                    $dailySummaries[$i]['date']['year'],
+                    $dailySummaries[$i]['date']['month'] - 1,
+                    $dailySummaries[$i]['date']['day']);
+
+                $y[$j][$i] = round(PbHelper::toHoursPbDuration(
                     $dailySummaries[$i]['activity_class_times'][$timeStr[$j]]), 1);
             }
         }

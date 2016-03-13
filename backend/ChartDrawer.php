@@ -43,8 +43,8 @@ class ChartDrawer {
         $this->_template = $template;
     }
 
-    protected function generateChart($x, $y, $yDimCount,
-        $divName, $title, $legendText, $xIsText = true) {
+    protected function generateChart($x, $y,
+        $divName, $title, $legendText) {
 
         $javascriptCode = $this->_template;
 
@@ -57,73 +57,47 @@ class ChartDrawer {
         $javascriptCode = str_replace('$$$colors$$$',
             implode('","', $this->_colors), $javascriptCode);
 
-        $legendTextSearch = $this->_createSearchWord('legendText',
-            $yDimCount);
-        for ($i = 0; $i < $yDimCount; $i++) {
-            if ($yDimCount > 1) {
-                $javascriptCode = str_replace($legendTextSearch[$i],
-                    $legendText[$i], $javascriptCode);
-            }
-            else {
-                $javascriptCode = str_replace($legendTextSearch[$i],
-                    $legendText, $javascriptCode);
-            }
-        }
+        $javascriptCode = str_replace('$$$dateFormat$$$',
+            Settings::DATE_FORMAT_JS, $javascriptCode);
 
-        $dataPointSearch = $this->_createSearchWord('dataPoints',
-            $yDimCount);
-        for ($i = 0; $i < $yDimCount; $i++) {
-            $javascriptCode = str_replace($dataPointSearch[$i],
-                $this->_generateDataPoints($x, $y, $i, $yDimCount > 1, $xIsText),
+        $javascriptCode = str_replace('$$$timeFormat$$$',
+            Settings::TIME_FORMAT_JS, $javascriptCode);
+
+        $javascriptCode = str_replace('$$$hourFormat$$$',
+            Settings::HOUR_FORMAT_JS, $javascriptCode);
+
+        foreach($x as $xIdx=>$value) {
+            $legendTextSearch = self::_createSearchWord('legendText', $xIdx);
+            $javascriptCode = str_replace($legendTextSearch,
+                $legendText[$xIdx], $javascriptCode);
+
+            $dataPointSearch = self::_createSearchWord('dataPoints', $xIdx);
+            $javascriptCode = str_replace($dataPointSearch,
+                $this->_generateDataPoints($x[$xIdx], $y[$xIdx]),
                 $javascriptCode);
         }
 
         return $javascriptCode;
     }
 
-    private function _generateDataPoints($x, $y, $yDim,
-        $multidimensional, $xIsText) {
+    private function _generateDataPoints($x, $y) {
 
         $dataPointsStr = '';
 
-        if (!$multidimensional) {
-            for ($i = 0; $i < count($x); $i++) {
-                if ($xIsText) {
-                    $dataPointsStr .= sprintf('{ label: "%s", y: %f },',
-                        $x[$i], $y[$i]);
-                }
-                else {
-                    $dataPointsStr .= sprintf('{ x: %s, y: %f },',
-                        $x[$i], $y[$i]);
-                }
+        foreach($x as $xIdx=>$value) {
+            if (is_string($x[$xIdx])) {
+                $dataPointsStr .= sprintf('{ x: %s, y: %f},',
+                    $x[$xIdx], $y[$xIdx]);
+            }
+            else {
+                $dataPointsStr .= sprintf('{ x: %d, y: %f, label: "%s" },',
+                    $xIdx, $y[$xIdx], $x[$xIdx]);
             }
         }
-        else {
-            for ($i = 0; $i < count($x); $i++) {
-                if ($xIsText) {
-                    $dataPointsStr .= sprintf('{ label: "%s", y: %f },',
-                        $x[$i], $y[$i][$yDim]);
-                }
-                else {
-                    $dataPointsStr .= sprintf('{ x: %s, y: %f },',
-                        $x[$i], $y[$i][$yDim]);
-                }
-            }
-        }
-
         return $dataPointsStr;
     }
 
-    private function _createSearchWord($search, $searchCount) {
-        if ($searchCount > 1) {
-            $ret = array();
-            for ($i = 0; $i < $searchCount; $i++) {
-                $ret[$i] = sprintf('$$$%s%d$$$', $search, $i);
-            }
-            return $ret;
-        }
-        else {
-            return array(sprintf('$$$%s$$$', $search));
-        }
+    private function _createSearchWord($search, $idx) {
+        return sprintf('$$$%s%d$$$', $search, $idx);
     }
 }

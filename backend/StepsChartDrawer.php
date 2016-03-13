@@ -38,15 +38,20 @@ class StepsChartDrawer extends ChartDrawer {
 var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
     title:{ text: "$$$title$$$" },
     colorSet: "$$$divName$$$Color",
-    legend: { 
-        verticalAlign: "top", 
+    legend: {
+        verticalAlign: "top",
         horizontalAlign: "center",
         fontSize: 12
     },
     axisX: {
         title: "Date",
         titleFontSize: 14,
-        labelFontSize: 12
+        labelFontSize: 12,
+        valueFormatString: "$$$dateFormat$$$",
+        labelFormatter: function (e) {
+            return CanvasJS.formatDate( e.value, "$$$dateFormat$$$");
+        },
+        intervalType: "day"
     },
     axisY: {
         title: "$$$legendText0$$$",
@@ -58,18 +63,36 @@ var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
         titleFontSize: 14,
         labelFontSize: 12,
     },
+    toolTip:{
+        contentFormatter: function ( e ) {
+            var content = " ";
+            for (var i = 0; i < e.entries.length; i++) {
+                content += "Date: ";
+                content += CanvasJS.formatDate(e.entries[i].dataPoint.x, "$$$dateFormat$$$");
+                content += "<br/>";
+                content += e.entries[i].dataSeries.name + ": ";
+                content += e.entries[i].dataPoint.y;
+                if (e.entries[i].dataSeries.name == "$$$legendText1$$$") {
+                    content += " %";
+                }
+            }
+            return content;
+        }
+    },
     data: [ {
         type: "column",
         showInLegend: true,
         legendText: "$$$legendText0$$$",
-        dataPoints: [$$$dataPoints0$$$]
+        dataPoints: [$$$dataPoints0$$$],
+        name: "$$$legendText0$$$"
     }, {
         type: "line",
         showInLegend: true,
         axisYType: "secondary",
         legendText: "$$$legendText1$$$",
         yValueFormatString: "# \'%\'",
-        dataPoints: [$$$dataPoints1$$$]
+        dataPoints: [$$$dataPoints1$$$],
+        name: "$$$legendText1$$$"
     }]
 });
 var$$$divName$$$.render();
@@ -86,7 +109,7 @@ var$$$divName$$$.render();
         $dataSet = $this->_generateStepsByDate($dailySummaries);
 
         return parent::generateChart($dataSet['x'],
-            $dataSet['y'], 2, $divName,
+            $dataSet['y'], $divName,
             $title, $legendText);
     }
 
@@ -95,16 +118,23 @@ var$$$divName$$$.render();
         $y = array();
 
         for ($i = 0; $i < count($dailySummaries); $i++) {
-            $x[$i] = PbHelper::toStringPbDate(
-                $dailySummaries[$i]['date']);
-            $y[$i][0] = $dailySummaries[$i]['steps'];
+            if ($dailySummaries[$i] === NULL) {
+                continue;
+            }
+            $x[0][$i] = sprintf('new Date(%d, %d, %d)',
+                $dailySummaries[$i]['date']['year'],
+                $dailySummaries[$i]['date']['month'] - 1,
+                $dailySummaries[$i]['date']['day']);
+            $x[1][$i] = $x[0][$i];
+
+            $y[0][$i] = $dailySummaries[$i]['steps'];
             $goal = $dailySummaries[$i]['activity_goal_summary']['activity_goal'];
             $achieved = $dailySummaries[$i]['activity_goal_summary']['achieved_activity'];
             if (!is_null($goal) && ($goal > 0)) {
-                $y[$i][1] = round(($achieved / $goal) * 100);
+                $y[1][$i] = round(($achieved / $goal) * 100);
             }
             else {
-                $y[$i][1] = 0;
+                $y[1][$i] = 0;
             }
         }
 

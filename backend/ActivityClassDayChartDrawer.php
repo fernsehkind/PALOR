@@ -38,7 +38,8 @@ class ActivityClassDayChartDrawer extends ChartDrawer {
 var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
     title:{ text: "$$$title$$$", fontSize: 24 },
     colorSet: "$$$divName$$$Color",
-    legend: { 
+    zoomEnabled: true,
+    legend: {
         verticalAlign: "top",
         horizontalAlign: "center",
         fontSize: 12
@@ -47,10 +48,10 @@ var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
         title: "Time",
         titleFontSize: 14,
         labelFontSize: 12,
-        valueFormatString: "H:mm",
+        valueFormatString: "$$$timeFormat$$$",
         labelFormatter: function (e) {
-                return CanvasJS.formatDate( e.value, "H:mm");
-            },
+            return CanvasJS.formatDate( e.value, "$$$timeFormat$$$");
+        },
         labelAngle: 0,
         interval: 1,
         intervalType: "hour",
@@ -58,7 +59,8 @@ var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
     axisY:{
         title: "",
         titleFontSize: 14,
-        labelFontSize: 12,
+        labelFontSize: 1,
+        margin: 20,
         minimum: 0,
         maximum: 1,
         interval: 1,
@@ -67,60 +69,33 @@ var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
         contentFormatter: function ( e ) {
             var content = " ";
             for (var i = 0; i < e.entries.length; i++) {
-                content += CanvasJS.formatDate(e.entries[i].dataPoint.x, "H:mm");
+                if (e.entries[i].dataPoint.y == 1) {
+                    content += "Start: ";
+                }
+                else {
+                    content += "Stop: ";
+                }
+                content += CanvasJS.formatDate(e.entries[i].dataPoint.x, "$$$timeFormat$$$");
+                content += "<br/>";
+                content += e.entries[i].dataSeries.name;
             }
             return content;
-            alert(e.entries[0].dataPoint);
-            return CanvasJS.formatDate(e.value, "H:mm");
-        }  
+        }
     },
-    data: [ {
-        type: "stepArea",
-        showInLegend: true,
-        xValueType: "dateTime",
-        legendText: "$$$legendText0$$$",
-        dataPoints: [$$$dataPoints0$$$]
-    }, {
-        type: "stepArea",
-        showInLegend: true,
-        xValueType: "dateTime",
-        legendText: "$$$legendText1$$$",
-        dataPoints: [$$$dataPoints1$$$]
-    }, {
-        type: "stepArea",
-        showInLegend: true,
-        xValueType: "dateTime",
-        legendText: "$$$legendText2$$$",
-        dataPoints: [$$$dataPoints2$$$]
-    }, {
-        type: "stepArea",
-        showInLegend: true,
-        legendText: "$$$legendText3$$$",
-        dataPoints: [$$$dataPoints3$$$]
-    }, {
-        type: "stepArea",
-        showInLegend: true,
-        legendText: "$$$legendText4$$$",
-        dataPoints: [$$$dataPoints4$$$]
-    }, {
-        type: "stepArea",
-        showInLegend: true,
-        legendText: "$$$legendText5$$$",
-        dataPoints: [$$$dataPoints5$$$]
-    }, {
-        type: "stepArea",
-        showInLegend: true,
-        legendText: "$$$legendText6$$$",
-        dataPoints: [$$$dataPoints6$$$]
-    }, {
-        type: "stepArea",
-        showInLegend: true,
-        legendText: "$$$legendText7$$$",
-        dataPoints: [$$$dataPoints7$$$]
-    }]
+    data: [ $$$dataSeries$$$ ]
 });
 var$$$divName$$$.render();
 ';
+
+    private $_templateSeries = '{
+        type: "stepArea",
+        showInLegend: true,
+        lineThickness: 0,
+        xValueType: "dateTime",
+        legendText: "$$$legendText$$$index$$$$$$",
+        dataPoints: [$$$dataPoints$$$index$$$$$$],
+        name: "$$$legendText$$$index$$$$$$"
+    },';
 
     public function __construct() {
         parent::setColors(Settings::$CHART_COLOR_EIGHT_DIM);
@@ -131,10 +106,26 @@ var$$$divName$$$.render();
         $divName, $title = 'Activity class times', $legendText = array('Non wear', 'Sleep', 'Sedentary', 'Light activity', 'Continuous moderate', 'Intermittent moderate', 'Continuous vigorous', 'Intermittent vigorous')) {
 
         $dataSet = $this->_generateDayCourse($actSample);
+        ksort($dataSet['x']);
+        ksort($dataSet['y']);
+
+        parent::setTemplate(str_replace('$$$dataSeries$$$',
+            $this->_prepareDataSeriesTemplate($dataSet), $this->_templateColumn));
 
         return parent::generateChart($dataSet['x'],
-            $dataSet['y'], 8, $divName,
-            $title, $legendText, false);
+            $dataSet['y'], $divName,
+            $title, $legendText);
+    }
+
+    private function _prepareDataSeriesTemplate($dataSet) {
+        $dataSeries = '';
+
+        foreach ($dataSet['x'] as $xIdx=>$value) {
+            $dataSeries .= str_replace('$$$index$$$',
+                $xIdx, $this->_templateSeries);
+        }
+
+        return $dataSeries;
     }
 
     private function _generateDayCourse($actSample) {
@@ -148,29 +139,46 @@ var$$$divName$$$.render();
             5 => 5, 6 => 6, 7 => 7
         );
 
-        for ($i = 0; $i < count($activityInfo); $i++) {
-            $currentMapping = $valueMapping[$activityInfo[$i]['value']];
+        $xIdxCountArray = array(0, 0, 0, 0, 0, 0, 0, 0);
 
-            $x[$i] = sprintf('new Date(2000,1,1,%d,%d,0,0)', 
-                $activityInfo[$i]['time_stamp']['time']['hour'],
-                $activityInfo[$i]['time_stamp']['time']['minute']);
+        $lastMapping = NULL;
 
-            for ($j = 0; $j < count($valueMapping); $j++) {
-                if ($j == $currentMapping) {
-                    $y[$i][$j] = 1;
-                }
-                else {
-                    $y[$i][$j] = 0;
-                }
+        for ($actIdx = 0; $actIdx < count($activityInfo); $actIdx++) {
+            $currentMapping = $valueMapping[$activityInfo[$actIdx]['value']];
+            $x[$currentMapping][$xIdxCountArray[$currentMapping]] = sprintf
+                ('new Date(2000,1,1,%d,%d,0,0)',
+                $activityInfo[$actIdx]['time_stamp']['time']['hour'],
+                $activityInfo[$actIdx]['time_stamp']['time']['minute']);
+
+            $y[$currentMapping][$xIdxCountArray[$currentMapping]] = 1;
+
+            if ($lastMapping !== NULL) {
+                $x[$lastMapping][$xIdxCountArray[$lastMapping]] = sprintf
+                    ('new Date(2000,1,1,%d,%d,0,0)',
+                    $activityInfo[$actIdx]['time_stamp']['time']['hour'],
+                    $activityInfo[$actIdx]['time_stamp']['time']['minute']);
+
+                $y[$lastMapping][$xIdxCountArray[$lastMapping]] = 0;
+
+                $xIdxCountArray[$lastMapping] += 1;
+            }
+
+            $xIdxCountArray[$currentMapping] += 1;
+
+            $lastMapping = $currentMapping;
+        }
+
+        if (count($activityInfo) > 0) {
+            if ($lastMapping !== NULL) {
+                $x[$lastMapping][$xIdxCountArray[$lastMapping]] = 'new Date(2000,1,1,23,59,59,999)';
+                $y[$lastMapping][$xIdxCountArray[$lastMapping]] = 0;
             }
         }
-        $x[$i] = 'new Date(2000,1,1,23,59,59,999)';
-        for ($j = 0; $j < count($valueMapping); $j++) {
-            if ($j == $currentMapping) {
-                $y[$i][$j] = 1;
-            }
-            else {
-                $y[$i][$j] = 0;
+
+        foreach($xIdxCountArray as $xIdxCount) {
+            if ($xIdxCount == 0) {
+                $x[$xIdxCount][0] = 'new Date(2000,1,1,23,59,59,999)';
+                $y[$xIdxCount][0] = 0;
             }
         }
 

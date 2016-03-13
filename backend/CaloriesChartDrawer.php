@@ -38,7 +38,7 @@ class CaloriesChartDrawer extends ChartDrawer {
 var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
     title:{ text: "$$$title$$$" },
     colorSet: "$$$divName$$$Color",
-    legend: { 
+    legend: {
         verticalAlign: "top",
         horizontalAlign: "center",
         fontSize: 12
@@ -46,23 +46,43 @@ var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
     axisX: {
         title: "Date",
         titleFontSize: 14,
-        labelFontSize: 12
+        labelFontSize: 12,
+        valueFormatString: "$$$dateFormat$$$",
+        labelFormatter: function (e) {
+            return CanvasJS.formatDate( e.value, "$$$dateFormat$$$");
+        },
+        intervalType: "day"
     },
     axisY: {
-        title: "Calories",
+        title: "$$$legendText0$$$",
         titleFontSize: 14,
         labelFontSize: 12,
+    },
+    toolTip:{
+        contentFormatter: function ( e ) {
+            var content = " ";
+            for (var i = 0; i < e.entries.length; i++) {
+                content += "Date: ";
+                content += CanvasJS.formatDate(e.entries[i].dataPoint.x, "$$$dateFormat$$$");
+                content += "<br/>";
+                content += e.entries[i].dataSeries.name + ": ";
+                content += e.entries[i].dataPoint.y;
+            }
+            return content;
+        }
     },
     data: [ {
         type: "stackedColumn",
         showInLegend: true,
         legendText: "$$$legendText0$$$",
-        dataPoints: [$$$dataPoints0$$$]
+        dataPoints: [$$$dataPoints0$$$],
+        name: "$$$legendText0$$$"
     }, {
         type: "stackedColumn",
         showInLegend: true,
         legendText: "$$$legendText1$$$",
-        dataPoints: [$$$dataPoints1$$$]
+        dataPoints: [$$$dataPoints1$$$],
+        name: "$$$legendText1$$$"
     }]
 });
 var$$$divName$$$.render();
@@ -80,7 +100,7 @@ var$$$divName$$$.render();
         $dataSet = $this->_generateCaloriesByDate($dailySummaries);
 
         return parent::generateChart($dataSet['x'],
-            $dataSet['y'], 2, $divName,
+            $dataSet['y'], $divName,
             $title, $legendText);
     }
 
@@ -89,10 +109,17 @@ var$$$divName$$$.render();
         $y = array();
 
         for ($i = 0; $i < count($dailySummaries); $i++) {
-            $x[$i] = PbHelper::toStringPbDate(
-                $dailySummaries[$i]['date']);
-            $y[$i][0] = $dailySummaries[$i]['bmr_calories'];
-            $y[$i][1] = $dailySummaries[$i]['activity_calories'];
+            if ($dailySummaries[$i] === NULL) {
+                continue;
+            }
+            $x[0][$i] = sprintf('new Date(%d, %d, %d)',
+                $dailySummaries[$i]['date']['year'],
+                $dailySummaries[$i]['date']['month'] - 1,
+                $dailySummaries[$i]['date']['day']);
+            $x[1][$i] = $x[0][$i];
+
+            $y[0][$i] = $dailySummaries[$i]['bmr_calories'];
+            $y[1][$i] = $dailySummaries[$i]['activity_calories'];
         }
 
         return array('x' => $x, 'y' => $y);
