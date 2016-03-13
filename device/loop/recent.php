@@ -60,6 +60,15 @@
             \Palor\PbFactory::getDailySummariesLast31Days(
                 \Palor\Settings::DEVICE_DATA_PATH, $deviceId,
                 $userId));
+
+        $entryFound = False;
+        foreach ($dailySummaries as $dailySummary) {
+            if ($dailySummary !== NULL) $entryFound = True;
+        }
+
+        if ($entryFound === False) {
+            $dailySummaries = NULL;
+        }
     }
 ?>
 

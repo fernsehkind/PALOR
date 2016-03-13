@@ -146,7 +146,7 @@
             <h1>Daily activity for device <?php echo $deviceId ?></h1>
 
             <div class="row">
-                <div class="datepicker"></div>
+                <div id="datepicker"></div>
             </div>
 <?php if ($actSamples !== NULL): ?>
             <div class="row">
@@ -182,14 +182,29 @@
     }
 ?>
 
-    $('.datepicker').datepicker({
+    $('#datepicker').datepicker({
         format: "dd/mm/yyyy",
+        endDate: "0+d",
+        defaultViewDate: {
+            year: <?php echo $year; ?>,
+            month: <?php echo $month - 1; ?>,
+            day: <?php echo $day; ?>,
+        }
     }).on('changeDate', function(e) {
         var currDay = new Date(e.date).getDate();
         var currMonth = new Date(e.date).getMonth() + 1;
         var currYear = String(e.date).split(" ")[3];
         window.open("daily.php?id=<?php echo $deviceId; ?>&day=" + currDay + "&month=" + currMonth + "&year=" + currYear, "_self");
     });
+
+    $('#datepicker .day').filter(function() {
+        if ($(this).text() == '<?php echo $day; ?>') {
+            if ($(this).attr('class') == 'day') {
+                return true;
+            }
+        };
+        return false;
+    }).addClass('active');
 
 };
     </script>
