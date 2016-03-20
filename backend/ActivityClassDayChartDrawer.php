@@ -152,8 +152,15 @@ var$$$divName$$$.render();
 
         parent::setTemplate($template);
 
-        $dataSetX = array_merge($dataSetActivity['x'], $dataSetInactivity['x']);
-        $dataSetY = array_merge($dataSetActivity['y'], $dataSetInactivity['y']);
+        if ((count($dataSetActivity['x']) > 0) && (count($dataSetInactivity['x']) > 0)) {
+            $dataSetX = array_merge($dataSetActivity['x'], $dataSetInactivity['x']);
+            $dataSetY = array_merge($dataSetActivity['y'], $dataSetInactivity['y']);
+        }
+        else {
+            $dataSetX = $dataSetActivity['x'];
+            $dataSetY = $dataSetActivity['y'];
+        }
+
 
         return parent::generateChart($dataSetX, $dataSetY,
             $divName, $title, $legendText, $link);
