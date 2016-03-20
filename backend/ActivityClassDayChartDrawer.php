@@ -33,6 +33,10 @@ require_once('ChartDrawer.php');
 
 class ActivityClassDayChartDrawer extends ChartDrawer {
 
+    const ACTIVITY_STOP_VALUE = 0;
+    const ACTIVITY_START_VALUE = 1;
+    const INACTIVITY_VALUE = 0.75;
+
     private $_templateColumn = 'CanvasJS.addColorSet("$$$divName$$$Color", ["$$$colors$$$"]);
 
 var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
@@ -72,7 +76,7 @@ var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
                 if (e.entries[i].dataPoint.y == 1) {
                     content += "Start: ";
                 }
-                else {
+                else if (e.entries[i].dataPoint.y == 0) {
                     content += "Stop: ";
                 }
                 content += CanvasJS.formatDate(e.entries[i].dataPoint.x, "$$$timeFormat$$$");
@@ -82,12 +86,15 @@ var var$$$divName$$$ = new CanvasJS.Chart("$$$divName$$$", {
             return content;
         }
     },
-    data: [ $$$dataSeries$$$ ]
+    data: [ 
+        $$$dataSeries0$$$
+        $$$dataSeries1$$$
+    ]
 });
 var$$$divName$$$.render();
 ';
 
-    private $_templateSeries = '{
+    private $_templateSeriesActivity = '{
         type: "stepArea",
         showInLegend: true,
         lineThickness: 0,
@@ -95,12 +102,19 @@ var$$$divName$$$.render();
         legendText: "$$$legendText$$$index$$$$$$",
         dataPoints: [$$$dataPoints$$$index$$$$$$],
         name: "$$$legendText$$$index$$$$$$",
-        click: function(e){
-            var link = "$$$link$$$&day=" + e.dataPoint.x.getDate();
-            link += "&month=" + (e.dataPoint.x.getMonth() + 1);
-            link += "&year=" + e.dataPoint.x.getFullYear();
-            window.open(link, "_self");
-        },
+    },';
+
+    private $_templateSeriesInactivity = '{
+        type: "scatter",
+        showInLegend: true,
+        lineThickness: 0,
+        xValueType: "dateTime",
+        markerColor: "#FF0000",
+        markerSize: 20,
+        markerType: "triangle",
+        legendText: "$$$legendText$$$index$$$$$$",
+        dataPoints: [$$$dataPoints$$$index$$$$$$],
+        name: "$$$legendText$$$index$$$$$$"
     },';
 
     public function __construct() {
@@ -109,32 +123,54 @@ var$$$divName$$$.render();
     }
 
     public function generateStepAreaChartByDay($actSample,
-        $divName, $link, $title = 'Activity class times', $legendText = array('Non wear', 'Sleep', 'Sedentary', 'Light activity', 'Continuous moderate', 'Intermittent moderate', 'Continuous vigorous', 'Intermittent vigorous')) {
+        $divName, $link, $title = 'Activity class times', $legendText = array('Non wear', 'Sleep', 'Sedentary', 'Light activity', 'Continuous moderate', 'Intermittent moderate', 'Continuous vigorous', 'Intermittent vigorous', 'Incactivity trigger')) {
 
-        $dataSet = $this->_generateDayCourse($actSample);
-        ksort($dataSet['x']);
-        ksort($dataSet['y']);
+        $dataSetActivity = $this->_generateDayCourseActivity($actSample);
+        ksort($dataSetActivity['x']);
+        ksort($dataSetActivity['y']);
 
-        parent::setTemplate(str_replace('$$$dataSeries$$$',
-            $this->_prepareDataSeriesTemplate($dataSet), $this->_templateColumn));
+        $template = str_replace('$$$dataSeries0$$$',
+            $this->_prepareDataSeriesTemplate(
+                $dataSetActivity,
+                $this->_templateSeriesActivity,
+                0),
+            $this->_templateColumn);
 
-        return parent::generateChart($dataSet['x'],
-            $dataSet['y'], $divName,
-            $title, $legendText, $link);
+        $dataSetInactivity = $this->_generateDayCourseInactivity($actSample);
+        ksort($dataSetActivity['x']);
+
+        if ($dataSetInactivity !== NULL) {
+            $template = str_replace('$$$dataSeries1$$$',
+                $this->_prepareDataSeriesTemplate(
+                    $dataSetInactivity,
+                    $this->_templateSeriesInactivity,
+                    count($dataSetActivity['x'])), $template);
+        }
+        else {
+            $template = str_replace('$$$dataSeries1$$$', '', $template);
+        }
+
+        parent::setTemplate($template);
+
+        $dataSetX = array_merge($dataSetActivity['x'], $dataSetInactivity['x']);
+        $dataSetY = array_merge($dataSetActivity['y'], $dataSetInactivity['y']);
+
+        return parent::generateChart($dataSetX, $dataSetY,
+            $divName, $title, $legendText, $link);
     }
 
-    private function _prepareDataSeriesTemplate($dataSet) {
+    private function _prepareDataSeriesTemplate($dataSet, $template, $startIndex = 0) {
         $dataSeries = '';
 
-        foreach ($dataSet['x'] as $xIdx=>$value) {
+        for ($i = 0; $i < count($dataSet['x']); $i++) {
             $dataSeries .= str_replace('$$$index$$$',
-                $xIdx, $this->_templateSeries);
+                $i + $startIndex, $template);
         }
 
         return $dataSeries;
     }
 
-    private function _generateDayCourse($actSample) {
+    private function _generateDayCourseActivity($actSample) {
         $x = array();
         $y = array();
 
@@ -156,7 +192,7 @@ var$$$divName$$$.render();
                 $activityInfo[$actIdx]['time_stamp']['time']['hour'],
                 $activityInfo[$actIdx]['time_stamp']['time']['minute']);
 
-            $y[$currentMapping][$xIdxCountArray[$currentMapping]] = 1;
+            $y[$currentMapping][$xIdxCountArray[$currentMapping]] = self::ACTIVITY_START_VALUE;
 
             if ($lastMapping !== NULL) {
                 $x[$lastMapping][$xIdxCountArray[$lastMapping]] = sprintf
@@ -164,7 +200,7 @@ var$$$divName$$$.render();
                     $activityInfo[$actIdx]['time_stamp']['time']['hour'],
                     $activityInfo[$actIdx]['time_stamp']['time']['minute']);
 
-                $y[$lastMapping][$xIdxCountArray[$lastMapping]] = 0;
+                $y[$lastMapping][$xIdxCountArray[$lastMapping]] = self::ACTIVITY_STOP_VALUE;
 
                 $xIdxCountArray[$lastMapping] += 1;
             }
@@ -177,17 +213,41 @@ var$$$divName$$$.render();
         if (count($activityInfo) > 0) {
             if ($lastMapping !== NULL) {
                 $x[$lastMapping][$xIdxCountArray[$lastMapping]] = 'new Date(2000,1,1,23,59,59,999)';
-                $y[$lastMapping][$xIdxCountArray[$lastMapping]] = 0;
+                $y[$lastMapping][$xIdxCountArray[$lastMapping]] = self::ACTIVITY_STOP_VALUE;
             }
         }
 
-        foreach($xIdxCountArray as $xIdxCount) {
-            if ($xIdxCount == 0) {
-                $x[$xIdxCount][0] = 'new Date(2000,1,1,23,59,59,999)';
-                $y[$xIdxCount][0] = 0;
+        foreach($xIdxCountArray as $xIdx=>$count) {
+            if ($count == 0) {
+                $x[$xIdx][0] = 'new Date(2000,1,1,23,59,59,999)';
+                $y[$xIdx][0] = self::ACTIVITY_STOP_VALUE;
             }
         }
 
         return array('x' => $x, 'y' => $y);
     }
+
+    private function _generateDayCourseInactivity($actSample) {
+        $x = array();
+        $y = array();
+
+        $inactivityInfo = $actSample['inactivity_trigger'];
+
+        if (count($inactivityInfo) == 0) {
+            return NULL;
+        }
+
+        for ($inactIdx = 0; $inactIdx < count($inactivityInfo); $inactIdx++) {
+            $x[0][$inactIdx] = sprintf
+                ('new Date(2000,1,1,%d,%d,0,0)',
+                $inactivityInfo[$inactIdx]['time_stamp']['time']['hour'],
+                $inactivityInfo[$inactIdx]['time_stamp']['time']['minute']);
+
+            $y[0][$inactIdx] = self::INACTIVITY_VALUE;
+        }
+
+        return array('x' => $x, 'y' => $y);
+
+    }
+
 }
