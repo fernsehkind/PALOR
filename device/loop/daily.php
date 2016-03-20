@@ -35,6 +35,7 @@
     require_once('../../backend/PbHelper.php');
     require_once('../../backend/Settings.php');
     require_once('../../backend/StepsChartDrawer.php');
+    require_once('../../backend/StepsDayChartDrawer.php');
 
     if (isset($_GET['id'])) {
         $deviceId = $_GET['id'];
@@ -154,6 +155,11 @@
                     <div id="activityClassContainer" style="height:300px"></div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="stepsContainer" style="height:300px"></div>
+                </div>
+            </div>
 <?php else: ?>
             <div class="row">
                 <div class="col-md-12">
@@ -181,6 +187,9 @@
             'activityClassContainer',
             sprintf('daily.php?id=%s', $deviceId),
             sprintf('Course of day - %s', $date));
+
+        $drawer = new \Palor\StepsDayChartDrawer();
+        echo $drawer->generateLineChartByDay($actSamples, 'stepsContainer');
     }
 ?>
 
